@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2017-2018, Jin Huang <jin_huang@whu.edu.cn>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under, at your option, the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version, or
+ * the terms of the simplified BSD license.
+ *
+ * You should have received a copy of these licenses along this
+ * program. If not, see <http://www.gnu.org/licenses/> and
+ * <http://www.opensource.org/licenses/bsd-license.html>.
+ */
+
+/**
+* This file contains the main implementation of ftc.
+* All of the functions that ftc will used was put on here.
+* The main function is the "FTCSegment"
+* Author: Jin Huang, Julie Delon
+* Date: 2017/05/11
+*/
+
 #include "ftc.h"
 
 double entrop(double x, double y)
@@ -25,8 +47,10 @@ void pooling_adjacent_violators(bool bInc, CHistList& in, CHistList& out)
 			som = out[i];
 			for (j = i - 1; j >= -1; j--)
 			{
-				// replace the increasing area with medium when the value of one node is large than medium.
-				// it deals with the judging problem occurs when calculating the medium of the increasing region.
+				// replace the increasing area with medium when 
+				// the value of one node is large than medium.
+				// it deals with the judging problem occurs when 
+				// calculating the medium of the increasing region.
 				if (j == -1 || (out[j] * (i - j) >= som))
 				{
 					som /= (float)(i - j);
@@ -61,7 +85,7 @@ void pooling_adjacent_violators(bool bInc, CHistList& in, CHistList& out)
 	}
 }
 
-double max_entropy(bool bInc, CHistList& in, int a, int b, double eps)
+double MaxEntropy(bool bInc, CHistList& in, int a, int b, double eps)
 {
 	CHistList extrait, decrease;
 	double seuil, H, r, p, max_entrop, N;
@@ -80,7 +104,7 @@ double max_entropy(bool bInc, CHistList& in, int a, int b, double eps)
 		decrease[i] += decrease[i - 1];
 	}
 
-	// meaningfulness threshold
+	// meaningful threshold
 	N = extrait[L - 1];
 	seuil = (log((float)L*(L + 1) / 2) + eps*log(10)) / (float)N;
 
@@ -107,13 +131,15 @@ double max_entropy(bool bInc, CHistList& in, int a, int b, double eps)
 	return max_entrop;
 }
 
-void merge(CHistList& in, float eps, CHistList& list, int jseg)
+void Merge(CHistList& in, float eps, CHistList& list, int jseg)
 {
 	int i, imin1;
 	int m, M;
-	int size = in.GetSize();
-	int step = 2 * jseg - 1;		// we merge jseg neighboring unimodal intervals at one time.
 	double min_max_entrop, H;
+	int size = in.GetSize();
+
+	// we merge jseg neighboring unimodal intervals at one time.
+	int step = 2 * jseg - 1;		
 
 	if (list.GetSize() <= step)
 		return;
@@ -138,29 +164,31 @@ void merge(CHistList& in, float eps, CHistList& list, int jseg)
 			continue;
 
 		// minimum at i
-		if ((list.m_bBeginfromMin && i % 2 == 0) || (!list.m_bBeginfromMin && i % 2 == 1))
+		if ((list.m_bBeginfromMin && i % 2 == 0) ||
+			(!list.m_bBeginfromMin && i % 2 == 1))
 		{
 			m = list[i];
 			M = list[i + step];
-			max_entrop[i] = max_entropy(true, in, m, M, eps);
+			max_entrop[i] = MaxEntropy(true, in, m, M, eps);
 		}
-		else				// maximum at i -> configuration (min at i+1, max at i+2) in 'list'
+		else				
 		{
+			// maximum at i 
+			// configuration (min at i+1, max at i+2) in 'list'
 			M = list[i];
 			m = list[i + step];
-			max_entrop[i] = max_entropy(false, in, M, m, eps);
+			max_entrop[i] = MaxEntropy(false, in, M, m, eps);
 		}
 	}
 
-	// Look for the "easiest" merging of two intervals with the related value in the entrop list
+	// Look for the "easiest" merging of two intervals 
+	// with the related value in the entrop list
 	min_max_entrop = max_entrop[0]; imin1 = 0;
 	for (i = 0; i < max_entrop.GetSize(); i++)
 	{
 		H = max_entrop[i];
 		if (min_max_entrop > H) { min_max_entrop = H; imin1 = i; }
 	}
-
-	//max_entrop.Display();
 
 	// Merge successively pairs of intervals
 	while (min_max_entrop < 0)
@@ -179,17 +207,18 @@ void merge(CHistList& in, float eps, CHistList& list, int jseg)
 			if ((i < 0 || i >= max_entrop.GetSize()) && !in.IsCircle())
 				continue;
 
-			if ((list.m_bBeginfromMin && i % 2 == 0) || (!list.m_bBeginfromMin && i % 2 == 1))
+			if ((list.m_bBeginfromMin && i % 2 == 0) || 
+				(!list.m_bBeginfromMin && i % 2 == 1))
 			{
 				m = list[i];
 				M = list[i + step];
-				max_entrop[i] = max_entropy(true, in, m, M, eps);
+				max_entrop[i] = MaxEntropy(true, in, m, M, eps);
 			}
 			else
 			{
 				M = list[i];
 				m = list[i + step];
-				max_entrop[i] = max_entropy(false, in, M, m, eps);
+				max_entrop[i] = MaxEntropy(false, in, M, m, eps);
 			}
 		}
 
@@ -201,16 +230,10 @@ void merge(CHistList& in, float eps, CHistList& list, int jseg)
 		}
 	}
 
-	//std::cout << "\nlist of separators (maxima):\n";
-	//for (i = 0; i < list.GetSize(); i ++)
-	//	if ((list.m_bBeginfromMin && i % 2 == 1) || (!list.m_bBeginfromMin && i % 2 == 0))
-	//		std::cout << list[i] << " ";
-	//std::cout << std::endl;
-	//list.Display();
 	max_entrop.Destroy();
 }
 
-void GetLocalMinMax(CHistList& in, CHistList& out)
+void GetLocalExtrema(CHistList& in, CHistList& out)
 {
 	int i, j;
 	int size = in.GetSize();
@@ -231,7 +254,8 @@ void GetLocalMinMax(CHistList& in, CHistList& out)
 		else
 		{
 			for (j = 1; (j < size) && (in[j] == in[0]); j++) {}
-			if (j == size) { return; }						/*case of a constant histogram*/
+			/*case of a constant histogram*/
+			if (j == size) { return; }						
 			else if (in[j] > in[0]) {
 				out.m_bBeginfromMin = true;
 			}
@@ -318,15 +342,15 @@ void GetLocalMinMax(CHistList& in, CHistList& out)
 	}
 }
 
-void FTCSegment(float eps, CHistList& in, CHistList& out)
+void FTCSegment(float eps, CHistList& in, CHistList& out,bool bThird)
 {
 	CHistList list;
 	list.Init(in.GetSize());
 
 	// step 1: get the original list.
 	// get the local minimums and maximums to generate the original list.
-	GetLocalMinMax(in, list);
-	printf("List of all maximas-minima (with the bounds 0 and size-1):\n");
+	GetLocalExtrema(in, list);
+	printf("List of all maximas-minima (gray image with the bounds 0 and size-1):\n");
 	list.Display();
 
 	// when the size of the list is less than 4 , it means there is only an unimodal area. 
@@ -337,32 +361,39 @@ void FTCSegment(float eps, CHistList& in, CHistList& out)
 	}
 
 	// step 2: merge process.
-	// when 2 neighbor intervals could be considered as unimodal, they will be merged.
-	merge(in, eps, list, 2);
+	// when 2 neighbor intervals could be considered
+	// as unimodal, they will be merged.
+	Merge(in, eps, list, 2);
 
-	// step 3: confirm there is no more than j segments that could be merged.
-	//int len = list.GetSize() / 2;
-	//for (int j = 3; j <= len; j++)
-	//{
-	//	merge(in, eps, list, j);
-	//}
+	if (bThird)
+	{
+		std::cout << "Checking for the third step...\n";
+		// step 3: confirm there is no more than j segments
+		// that could be merged.
+		int len = list.GetSize() / 2;
+		for (int j = 3; j <= len; j++)
+		{
+			Merge(in, eps, list, j);
+		}
+	}
 
-	//list.Display();
 	// optimization --> find the new center between two maxima.
+	std::cout << "using optimization...\n";
 	for (int i = 0; i < list.GetSize(); i++)
 	{
 		if (!in.IsCircle() && i >= list.GetSize() - 2)
 		{
 			continue;
 		}
-		if ((list.m_bBeginfromMin && i % 2 == 1) || (!list.m_bBeginfromMin && i % 2 == 0))
+		if ((list.m_bBeginfromMin && i % 2 == 1) ||
+			(!list.m_bBeginfromMin && i % 2 == 0))
 		{
 			double min_sum = 0;
 			int min_j = -1;
 			for (int j = list[i] + 1; j < list[i + 2]; j++)
 			{
-				double dec = max_entropy(false, in, list[i], j, eps);
-				double inc = max_entropy(true, in, j, list[i + 2], eps);
+				double dec = MaxEntropy(false, in, list[i], j, eps);
+				double inc = MaxEntropy(true, in, j, list[i + 2], eps);
 				if (dec < 0 && inc < 0)
 				{
 					if (dec + inc < min_sum)
@@ -379,13 +410,19 @@ void FTCSegment(float eps, CHistList& in, CHistList& out)
 		}
 	}
 
+	std::cout << "optimized list: \n";
 	list.Display();
+
 	// fill the output list.
 	out.Init(list.GetSize());
 	if (in.IsCircle())
 		out.SetCircle();
 	for (int i = 0; i < list.GetSize(); i++)
-		if ((list.m_bBeginfromMin && i % 2 == 0) || (!list.m_bBeginfromMin && i % 2 == 1))
+		if ((list.m_bBeginfromMin && i % 2 == 0) ||
+			(!list.m_bBeginfromMin && i % 2 == 1))
 			out.Pushback(list[i]);
+
+	std::cout << "output minima list: \n";
 	out.Display();
 }
+

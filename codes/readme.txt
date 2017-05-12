@@ -1,5 +1,3 @@
-# Histogram-Segmentation
-The Source Code and Image used in Histogram segmentation
 This program is the demo of FTC algorithm.
 It was written by Jin Huang and Julie Delon.
 

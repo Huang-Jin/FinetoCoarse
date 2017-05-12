@@ -1,3 +1,11 @@
+/*
+* This file contains the main implementation of ftc.
+* All of the functions that ftc will used was put on here.
+* The main function is the "FTCSegment"
+* Author: Jin Huang, Julie Delon
+* Date: 2017/05/11
+*/
+
 #ifndef _FTC_H_
 #define _FTC_H_
 
@@ -22,21 +30,23 @@ void pooling_adjacent_violators(bool bInc, CHistList& in, CHistList& out);
 // find the max entrop at interval [a,b] of input list "in".
 // "eps" is the parameter of precision.
 // "c" = 1 for the increasing hypothesis, 0 for the decreasing one
-double max_entropy(bool bInc, CHistList& in, int a, int b, double eps);
+double MaxEntropy(bool bInc, CHistList& in, int a, int b, double eps);
 
 // the merge process
 // "in" is the input list.
 // "eps" is the parameter of precision.
 // "list" is the list with extrema.
 // "jseg" is the length of step in merging process.
-void merge(CHistList& in, float eps, CHistList& list, int jseg);
+void Merge(CHistList& in, float eps, CHistList& list, int jseg);
 
 // Get the list "out",which containing maxima and minma(begin from minima) of list "in"
-void GetLocalMinMax(CHistList& in, CHistList& out);
+void GetLocalExtrema(CHistList& in, CHistList& out);
 
 // ftc algorithm
 // "eps" is the parameter of precision.
 // "in" is the input list
 // "out" is the output list which has been manipulated by ftc algorithm.
-void FTCSegment(float eps, CHistList& in, CHistList& out);
+// "bThird" show whether to use the third step of ftc.
+void FTCSegment(float eps, CHistList& in, CHistList& out, bool bThird);
+
 #endif

@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2017-2018, Jin Huang <jin_huang@whu.edu.cn>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under, at your option, the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version, or
+ * the terms of the simplified BSD license.
+ *
+ * You should have received a copy of these licenses along this
+ * program. If not, see <http://www.gnu.org/licenses/> and
+ * <http://www.opensource.org/licenses/bsd-license.html>.
+ */
+
 #include "HistList.h"
 
 CHistList::CHistList()
@@ -114,8 +128,11 @@ bool CHistList::Pushback(double val)
 
 void CHistList::Interval(CHistList& out, int a, int b)
 {
+	// deal with the circular list
 	if (m_bCircle)
 	{
+		// when a > b, it means we want to 
+		// get the interval [a,size-1] and [0,b]
 		if (a > b)
 		{
 			out.Init(m_size - a + b + 1);
@@ -131,6 +148,7 @@ void CHistList::Interval(CHistList& out, int a, int b)
 				out.Pushback(m_pvalues[i]);
 		}
 	}
+	// deal with the regular list
 	else
 	{
 		out.Init(b - a + 1);
@@ -155,8 +173,8 @@ double& CHistList::operator[](int i)
 		}
 	}
 	else{
+		// when get a wrong i, we will kill the process.
 		std::cout << "array out of bouds";
-		//Display();
 		system("pause");
 		exit(1);
 	}
@@ -166,6 +184,8 @@ void CHistList::Delete(int start, int num)
 {
 	if (m_bCircle)
 	{
+		// if we didn't cross the bound,
+		// we only need to delete like regular one.
 		if (start <= m_size - num)
 		{
 			for (int i = start; i < m_size - num; i++)
@@ -175,6 +195,9 @@ void CHistList::Delete(int start, int num)
 		}
 		else
 		{
+			// while crossed the bound,we only need to delete
+			// the beginning of the list because the end part of the
+			// list will be deleted by the last sentence "m_size -= num";
 			int new_num = start + num - m_size;
 			for (int i = 0; i < m_size - new_num; i++)
 			{
@@ -192,20 +215,8 @@ void CHistList::Delete(int start, int num)
 			}
 		}
 	}
-	m_size-=num;
-}
 
-bool CHistList::Replace(double val, int i)
-{
-	if (i >= 0 && unsigned int(i) < m_size)
-	{
-		m_pvalues[i] = val;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	m_size-=num;
 }
 
 double CHistList::Sum()
@@ -246,7 +257,7 @@ double CHistList::MeanValue()
 
 void CHistList::SaveasTxt(std::string path)
 {
-	std::ofstream of(path);
+	std::ofstream of(path.c_str());
 
 	for (int i = 0; i < m_size; i++)
 	{
@@ -254,3 +265,4 @@ void CHistList::SaveasTxt(std::string path)
 	}
 	of.close();
 }
+
