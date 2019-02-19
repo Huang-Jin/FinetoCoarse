@@ -22,7 +22,7 @@ make -j8
 
 ## Usage
 
-To use this program after compiling, you could just input the name of the program to see the usage.
+After compiling, you can input './ftc -h' to see the usage.
 usage  : ftc input.png [eps] [-t] [-s sigma width]
          ftc [-h|-v]
 
@@ -44,11 +44,14 @@ usage  : ftc input.png [eps] [-t] [-s sigma width]
          -h      usage help
          -v      version info
 
-Such as this in linux: ./ftc ./images/flowers.png -s 3 3
-You will get some output like these:
-First, it will be an output image named "ftc_image_segmentation.png".
+## Sample
+
+```
+./ftc ./images/flowers.png -s 3 3
+```
+
+Firstly, the program will output an image named "ftc_image_segmentation.png".
 It is the result of image segmentation.
-Second, it will be a txt file named "histogram.txt".
-This is the list of the histogram ftc algorithm used.
-Last, it will be a txt file named "index.txt".
-This is the list of the minima ftc algorithm found.
+Secondly, there will be a txt file named "histogram.txt".
+This is the list of the histogram.
+Lastly, there will be a txt file named "index.txt", which is the list of the minimums ftc algorithm found.
