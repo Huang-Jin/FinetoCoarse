@@ -1,20 +1,26 @@
-# Histogram-Segmentation
-The Source Code and Image used in Histogram segmentation
-This program is the demo of FTC algorithm.
+## A C++ Implementation of Fine-to-Coarse Algorithm for Histogram-based Image Segmentation
+
+Here we provide the source code and images used in the paper of "A C++ Implementation of Fine-to-Coarse Algorithm for Histogram-based Image Segmentation".
 It was written by Jin Huang and Julie Delon.
 
-The main.cpp contains the controller of parameter.
-demo.cpp is the demo to use the ftc function.
-ftc.cpp contains all of the functions that ftc needed.
-HistList.cpp defined the data structure ftc used.
-io_png.c is the interface of libpng14, provided by IPOL, to read the png files.
+## Requirements
 
-The directory "image" contains all of the images used in our paper.
-You could use them as example.
+Building and using requires the following libraries
 
-To use this demo in Linux, you should input "make" in the console.
-We used g++ and libpng14 in our processing of compiling.
-While in windows, you need to open a new project and put these files into it and compile it yourself.
+    libpng 1.2.54
+
+The versions match the configuration we have tested on an ubuntu 16.04 system.
+
+## Compile
+
+To compile the codes in Linux,
+
+```
+cd ./codes
+make -j8
+```
+
+## Usage
 
 To use this program after compiling, you could just input the name of the program to see the usage.
 usage  : ftc input.png [eps] [-t] [-s sigma width]
